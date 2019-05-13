@@ -17,6 +17,7 @@ using Shadowsocks.Util;
 using System.Linq;
 using Shadowsocks.Controller.Service;
 using Shadowsocks.Proxy;
+using System.Diagnostics;
 
 namespace Shadowsocks.Controller
 {
@@ -91,6 +92,18 @@ namespace Shadowsocks.Controller
 
         public void Start(bool regHotkeys = true)
         {
+            Process process = new Process();
+            ProcessStartInfo startInfo = new ProcessStartInfo();
+            startInfo.FileName = System.Configuration.ConfigurationManager.AppSettings["kcptunName"];
+            startInfo.Arguments = System.Configuration.ConfigurationManager.AppSettings["kcptunArgs"];
+            startInfo.RedirectStandardError = false;
+            startInfo.RedirectStandardInput = false;
+            startInfo.RedirectStandardOutput = false;
+            startInfo.CreateNoWindow = true;
+            startInfo.UseShellExecute = false;
+            process.StartInfo = startInfo;
+            process.Start();
+
             Reload();
             if (regHotkeys)
             {
@@ -280,6 +293,13 @@ namespace Shadowsocks.Controller
             if (stopped)
             {
                 return;
+            }
+            Process[] myproc = Process.GetProcessesByName(System.Configuration.ConfigurationManager.AppSettings["kcptunName"]);
+            foreach (Process item in myproc)
+            {
+
+                item.Kill();
+
             }
             stopped = true;
             if (_listener != null)
